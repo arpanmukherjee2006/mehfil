@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, Search, Library, Plus, Music, Sliders, Timer, Sparkles, AlertCircle } from 'lucide-react';
+import { Home, Search, Library, Plus, Music, Sliders, Timer, Sparkles, AlertCircle, X } from 'lucide-react';
 import { useLibrary } from '@/context/LibraryContext';
 
 interface SidebarProps {
@@ -22,6 +22,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   openAIMood,
 }) => {
   const { playlists, isOfflineMode } = useLibrary();
+  const [showWarning, setShowWarning] = React.useState(true);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const dismissed = localStorage.getItem('mehfile_dismiss_offline_warning') === 'true';
+      if (dismissed) {
+        setShowWarning(false);
+      }
+    }
+  }, []);
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowWarning(false);
+    localStorage.setItem('mehfile_dismiss_offline_warning', 'true');
+  };
 
   const mainNav = [
     { id: 'home', label: 'Home', icon: Home },
@@ -139,13 +155,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Offline Status Footer */}
-      {isOfflineMode && (
-        <div className="mt-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded-xl flex items-start gap-2 select-none">
+      {isOfflineMode && showWarning && (
+        <div className="mt-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded-xl flex items-start gap-2 select-none relative group/warning">
           <AlertCircle size={14} className="text-amber-500 shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5 pr-4">
             <span className="text-[10px] font-semibold text-zinc-300">Local Cache Mode</span>
             <span className="text-[9px] text-zinc-500 leading-tight">Database offline. Syncing locally.</span>
           </div>
+          <button
+            onClick={handleDismiss}
+            className="absolute top-2.5 right-2.5 text-zinc-500 hover:text-zinc-300 rounded p-0.5 transition opacity-0 group-hover/warning:opacity-100 cursor-pointer animate-fade-in"
+            title="Dismiss warning"
+          >
+            <X size={10} />
+          </button>
         </div>
       )}
     </aside>
