@@ -156,7 +156,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           fs: 0,
           rel: 0,
           showinfo: 0,
-          iv_load_policy: 3
+          iv_load_policy: 3,
+          origin: typeof window !== 'undefined' ? window.location.origin : ''
         },
         events: {
           onReady: (event: any) => {
