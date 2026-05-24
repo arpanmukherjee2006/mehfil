@@ -16,6 +16,7 @@ export async function connectToDatabase() {
   if (!globalWithMongo.mongoose?.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 2000, // Fail fast (2s) if MongoDB is offline
     };
 
     console.log('Connecting to MongoDB...');
