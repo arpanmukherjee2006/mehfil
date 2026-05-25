@@ -169,11 +169,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({ setCurrentTab, openCreatePlayl
                 Recently Played
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {listeningHistory.slice(0, 6).map((song) => {
+                {listeningHistory.slice(0, 6).map((song, index) => {
                   const isCurrent = currentTrack?.id === song.id;
                   return (
                     <div
-                      key={song.id}
+                      key={`${song.id}-${index}`}
                       onClick={() => playTrack(song, listeningHistory)}
                       className="group glass-panel glass-panel-hover p-3 rounded-xl cursor-pointer flex flex-col items-center relative overflow-hidden"
                     >
@@ -218,11 +218,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({ setCurrentTab, openCreatePlayl
             </div>
             
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x select-none">
-              {(activeCategory === 'Trending' ? trendingSongs : categorySongs).map((song) => {
+              {(activeCategory === 'Trending' ? trendingSongs : categorySongs).map((song, index) => {
                 const isCurrent = currentTrack?.id === song.id;
                 return (
                   <div
-                    key={song.id}
+                    key={`${song.id}-${index}`}
                     className="w-40 shrink-0 group glass-panel glass-panel-hover p-3 rounded-xl cursor-pointer snap-start relative flex flex-col"
                     onClick={() => playTrack(song, activeCategory === 'Trending' ? trendingSongs : categorySongs)}
                   >
@@ -305,11 +305,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({ setCurrentTab, openCreatePlayl
             </h3>
             
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x select-none">
-              {lofiSongs.map((song) => {
+              {lofiSongs.map((song, index) => {
                 const isCurrent = currentTrack?.id === song.id;
                 return (
                   <div
-                    key={song.id}
+                    key={`${song.id}-${index}`}
                     className="w-40 shrink-0 group glass-panel glass-panel-hover p-3 rounded-xl cursor-pointer snap-start relative flex flex-col"
                     onClick={() => playTrack(song, lofiSongs)}
                   >

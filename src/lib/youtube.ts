@@ -109,7 +109,7 @@ function getFallbackSongs(query: string): YouTubeTrack[] {
     { id: 'JGwWNGJdvx8', title: 'Shape of You', channelTitle: 'Ed Sheeran', thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=80', duration: '3:53' },
     { id: '2Vv-BfVoq4g', title: 'Perfect', channelTitle: 'Ed Sheeran', thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80', duration: '4:23' },
     { id: 'OPf0YbXqDm0', title: 'Uptown Funk', channelTitle: 'Mark Ronson ft. Bruno Mars', thumbnail: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&q=80', duration: '4:30' },
-    { id: 'kJQP7kiw5Fk', title: 'Kesariya (Lofi)', channelTitle: 'Arijit Singh', thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80', duration: '4:12' },
+    { id: 'BddP6PYo2gs', title: 'Kesariya (Lofi)', channelTitle: 'Arijit Singh', thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80', duration: '4:12' },
     { id: 'h7GyJr3Mndw', title: 'Apna Bana Le', channelTitle: 'Arijit Singh', thumbnail: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&q=80', duration: '3:24' },
     { id: '34Na4j8AVgA', title: 'Starboy', channelTitle: 'The Weeknd', thumbnail: 'https://images.unsplash.com/photo-1487180144351-b8472da7a4c3?w=400&q=80', duration: '3:50' },
     { id: 'D7gd2M4Ftc0', title: 'Blinding Lights', channelTitle: 'The Weeknd', thumbnail: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80', duration: '3:21' },

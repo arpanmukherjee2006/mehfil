@@ -261,12 +261,12 @@ export const SearchTab: React.FC<SearchTabProps> = ({ openCreatePlaylist }) => {
                 Search Results
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {results.map((song) => {
+                {results.map((song, index) => {
                   const isCurrent = currentTrack?.id === song.id;
                   const isSongLiked = isLiked(song.id);
                   return (
                     <div
-                      key={song.id}
+                      key={`${song.id}-${index}`}
                       onClick={() => playTrack(song, results)}
                       className="group glass-panel glass-panel-hover p-3 rounded-xl cursor-pointer relative flex flex-col justify-between"
                     >
