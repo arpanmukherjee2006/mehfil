@@ -80,6 +80,11 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const sleepTimerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Web Audio API refs for background playback keep-alive
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const silentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const keepAliveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Background playback control refs (updates on every render to avoid TDZ and stale closures)
   const togglePlayRef = useRef<() => void>(() => {});
   const prevTrackRef = useRef<() => void>(() => {});
@@ -119,8 +124,98 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (sleepTimerIntervalRef.current) clearInterval(sleepTimerIntervalRef.current);
+      stopBackgroundKeepAlive();
     };
   }, []);
+
+  // ─── Background Playback Keep-Alive ───────────────────────────────────────
+  // Mobile Chrome pauses hidden iframes in background. We keep an AudioContext
+  // alive with a silent buffer so the browser treats this page as active audio.
+
+  const startBackgroundKeepAlive = () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      // Create AudioContext if not exists
+      if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (!AudioCtx) return;
+        audioContextRef.current = new AudioCtx();
+      }
+
+      const ctx = audioContextRef.current;
+
+      // Resume if suspended (required after user gesture on mobile)
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      // Play a silent buffer in a loop — keeps audio focus alive
+      const playSilentBuffer = () => {
+        if (!audioContextRef.current || audioContextRef.current.state === 'closed') return;
+        const buffer = audioContextRef.current.createBuffer(1, audioContextRef.current.sampleRate * 0.5, audioContextRef.current.sampleRate);
+        const source = audioContextRef.current.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContextRef.current.destination);
+        source.start();
+        silentSourceRef.current = source;
+      };
+
+      playSilentBuffer();
+
+      // Re-play silent buffer every 20s to maintain audio focus
+      if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = setInterval(() => {
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+          if (audioContextRef.current.state === 'suspended') {
+            audioContextRef.current.resume();
+          }
+          playSilentBuffer();
+        }
+      }, 20000);
+
+    } catch (e) {
+      console.warn('Background keep-alive setup failed:', e);
+    }
+  };
+
+  const stopBackgroundKeepAlive = () => {
+    if (keepAliveIntervalRef.current) {
+      clearInterval(keepAliveIntervalRef.current);
+      keepAliveIntervalRef.current = null;
+    }
+    try {
+      silentSourceRef.current?.stop();
+    } catch (_) {}
+  };
+
+  // Handle page visibility change — resume AudioContext when tab comes back
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Page came back to foreground
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+        // If YouTube player was paused by browser, resume it
+        if (isPlaying && playerRef.current && typeof playerRef.current.getPlayerState === 'function') {
+          const state = playerRef.current.getPlayerState();
+          // state 2 = paused, state -1 = unstarted
+          if (state === 2 || state === -1) {
+            setTimeout(() => {
+              playerRef.current?.playVideo?.();
+            }, 300);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isPlaying]);
+  // ──────────────────────────────────────────────────────────────────────────
 
   const initPlayer = () => {
     if (playerRef.current || iframeCreatedRef.current) return;
@@ -326,6 +421,9 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Re-init player if it was not loaded
       initPlayer();
     }
+
+    // Start background keep-alive on first user interaction (required for mobile AudioContext)
+    startBackgroundKeepAlive();
 
     setCurrentTrack(track);
     setDurationSeconds(durationToSeconds(track.duration));
