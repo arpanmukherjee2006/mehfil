@@ -147,7 +147,7 @@ export default function Dashboard() {
           </header>
 
           {/* Tab Content Window */}
-          <div className="flex-1 overflow-y-auto px-6 py-8 pb-36 md:pb-28">
+          <div className={`flex-1 overflow-y-auto px-6 py-8 ${currentTrack ? 'pb-52 md:pb-28' : 'pb-20 md:pb-8'}`}>
             {renderActiveTab()}
           </div>
         </main>
@@ -163,7 +163,7 @@ export default function Dashboard() {
       )}
 
       {/* Mobile Sticky Navigation (hidden on desktop) */}
-      <nav className="flex md:hidden fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/90 border-t border-zinc-900/60 justify-around items-center z-30 backdrop-blur-md pb-2 select-none">
+      <nav className={`flex md:hidden fixed left-0 right-0 h-16 bg-zinc-950/90 border-t border-zinc-900/60 justify-around items-center z-30 backdrop-blur-md pb-2 select-none transition-all duration-300 ${currentTrack ? 'bottom-20' : 'bottom-0'}`}>
         <button
           onClick={() => setCurrentTab('home')}
           className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition cursor-pointer ${
