@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Home, Search, Library, Plus, Music, Sliders, Timer, Sparkles, AlertCircle, X } from 'lucide-react';
+import Image from 'next/image';
+import { Home, Search, Library, Plus, Sliders, Timer, Sparkles, AlertCircle, X } from 'lucide-react';
 import { useLibrary } from '@/context/LibraryContext';
 
 interface SidebarProps {
@@ -55,8 +56,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-64 bg-black border-r border-zinc-900 p-6 flex flex-col h-full shrink-0 select-none">
       {/* Brand logo */}
       <div className="flex items-center gap-2 mb-8 cursor-pointer" onClick={() => setCurrentTab('home')}>
-        <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-emerald-glow">
-          <Music size={18} className="text-black font-extrabold animate-pulse" />
+        <div className="w-9 h-9 rounded-xl overflow-hidden shadow-emerald-glow shrink-0">
+          <Image
+            src="/logo.jpeg"
+            alt="Mehfile Logo"
+            width={36}
+            height={36}
+            className="w-full h-full object-cover"
+          />
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-bold tracking-tight text-white font-sans">
