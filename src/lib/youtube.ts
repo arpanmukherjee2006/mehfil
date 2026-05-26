@@ -1,5 +1,9 @@
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
+// In-memory cache: query -> { tracks, timestamp }
+const searchCache = new Map<string, { tracks: YouTubeTrack[]; timestamp: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutes
+
 export interface YouTubeTrack {
   id: string;
   title: string;
@@ -24,6 +28,15 @@ export function parseISO8601Duration(durationStr: string): string {
 }
 
 export async function searchYouTubeSongs(query: string, maxResults = 25): Promise<YouTubeTrack[]> {
+  const cacheKey = `${query.toLowerCase().trim()}:${maxResults}`;
+
+  // Return cached result if still fresh
+  const cached = searchCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    console.log(`Cache hit for query: "${query}"`);
+    return cached.tracks;
+  }
+
   if (!YOUTUBE_API_KEY) {
     console.error('YOUTUBE_API_KEY is not defined in environment variables.');
     return getFallbackSongs(query);
@@ -68,7 +81,7 @@ export async function searchYouTubeSongs(query: string, maxResults = 25): Promis
     const detailsItems = detailsData.items || [];
     
     // Map video details to custom track format
-    return detailsItems.map((item: any) => {
+    const tracks = detailsItems.map((item: any) => {
       const durationStr = item.contentDetails?.duration || 'PT3M30S';
       return {
         id: item.id,
@@ -78,6 +91,10 @@ export async function searchYouTubeSongs(query: string, maxResults = 25): Promis
         duration: parseISO8601Duration(durationStr),
       };
     });
+
+    // Save to cache
+    searchCache.set(cacheKey, { tracks, timestamp: Date.now() });
+    return tracks;
   } catch (err) {
     console.error('Error fetching from YouTube API:', err);
     return getFallbackSongs(query);
